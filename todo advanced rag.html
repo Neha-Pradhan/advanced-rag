@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced RAG — NCERT · TODO</title>
+<style>
+  :root {
+    --bg: #faf9f5;
+    --ink: #1a1a18;
+    --muted: #8a8778;
+    --accent: #c2410c;
+    --done: #9a9684;
+    --card: #ffffff;
+    --line: #e8e5da;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    background: var(--bg);
+    color: var(--ink);
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+    line-height: 1.5;
+  }
+  h1 { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); font-size: 0.9rem; margin-top: 4px; font-style: italic; }
+  .progress {
+    margin: 24px 0 32px;
+    background: var(--line);
+    border-radius: 99px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .progress > div {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.3s ease;
+    border-radius: 99px;
+  }
+  .pct { font-size: 0.8rem; color: var(--muted); text-align: right; margin-top: 6px; font-family: ui-monospace, Menlo, monospace; }
+  section {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+  }
+  h2 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  label.item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 6px 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  label.item:hover { background: var(--bg); }
+  input[type="checkbox"] {
+    accent-color: var(--accent);
+    width: 16px; height: 16px;
+    margin-top: 3px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  label.item.done span { color: var(--done); text-decoration: line-through; }
+  .note { font-size: 0.8rem; color: var(--muted); margin: 4px 0 0 30px; font-style: italic; }
+  textarea {
+    width: 100%;
+    min-height: 140px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 0.85rem;
+    background: var(--bg);
+    color: var(--ink);
+    resize: vertical;
+  }
+  textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
+  .saved { font-size: 0.75rem; color: var(--muted); margin-top: 6px; font-family: ui-monospace, monospace; }
+</style>
+</head>
+<body>
+
+<h1>Advanced RAG — NCERT Education Chatbot</h1>
+<p class="sub">One step at a time. Each advanced technique: concept session → build → measure in MLflow.</p>
+
+<div class="progress"><div id="bar"></div></div>
+<div class="pct" id="pct">0 / 0</div>
+
+<section>
+  <h2>Phase 0 — Setup (local)</h2>
+  <label class="item"><input type="checkbox" data-k="p0-1"><span>Local project folder + decisions log file (empty, headers only)</span></label>
+  <label class="item"><input type="checkbox" data-k="p0-2"><span><code>pip install qdrant-client pypdf</code> into <code>agents</code> env, verify imports</span></label>
+  <label class="item"><input type="checkbox" data-k="p0-3"><span>Qdrant Cloud account + free cluster + API key in <code>.env</code></span></label>
+</section>
+
+<section>
+  <h2>Phase 1 — Corpus</h2>
+  <label class="item"><input type="checkbox" data-k="p1-1"><span>Download NCERT Grade 6 + 7 Science PDFs (ncert.nic.in)</span></label>
+  <label class="item"><input type="checkbox" data-k="p1-2"><span>Sanity-check: extract 2–3 chapters with pypdf, eyeball text quality</span></label>
+  <label class="item"><input type="checkbox" data-k="p1-3"><span>Log where tables/figures break — pain log for the table-extraction phase</span></label>
+</section>
+
+<section>
+  <h2>Phase 2 — Ingestion &amp; chunking (hand-rolled)</h2>
+  <label class="item"><input type="checkbox" data-k="p2-1"><span>Extraction script: PDF → raw text per chapter</span></label>
+  <label class="item"><input type="checkbox" data-k="p2-2"><span>Chunking strategy chosen + logged (options, choice, why)</span></label>
+  <label class="item"><input type="checkbox" data-k="p2-3"><span>Chunks carry metadata: grade, subject, chapter</span></label>
+  <label class="item"><input type="checkbox" data-k="p2-4"><span>Spot-check 10 random chunks manually</span></label>
+</section>
+
+<section>
+  <h2>Phase 3 — Embed + load</h2>
+  <label class="item"><input type="checkbox" data-k="p3-1"><span>Embed chunks (model choice logged)</span></label>
+  <label class="item"><input type="checkbox" data-k="p3-2"><span>Qdrant collection with payload schema</span></label>
+  <label class="item"><input type="checkbox" data-k="p3-3"><span>Upsert + verify counts match</span></label>
+</section>
+
+<section>
+  <h2>Phase 4 — Baseline retrieval</h2>
+  <label class="item"><input type="checkbox" data-k="p4-1"><span>Plain vector search, no filters — hand-rolled query fn</span></label>
+  <label class="item"><input type="checkbox" data-k="p4-2"><span>Grade filter: <code>grade ≤ user grade</code></span></label>
+  <label class="item"><input type="checkbox" data-k="p4-3"><span>"Not found" detection: score threshold + LLM relevance check</span></label>
+  <label class="item"><input type="checkbox" data-k="p4-4"><span>Two-stage fallback w/ consent flow (logic only, no UI)</span></label>
+</section>
+
+<section>
+  <h2>Phase 5 — Evals baseline</h2>
+  <label class="item"><input type="checkbox" data-k="p5-1"><span>20-min concept session: RAGAS metrics</span></label>
+  <label class="item"><input type="checkbox" data-k="p5-2"><span>Eval set: ~20–30 Q/A pairs across both grades</span></label>
+  <label class="item"><input type="checkbox" data-k="p5-3"><span>RAGAS baseline run + MLflow logging wired up</span></label>
+</section>
+
+<section>
+  <h2>Phase 6 — Advanced techniques (measured before/after)</h2>
+  <label class="item"><input type="checkbox" data-k="p6-1"><span>Metadata filtering (formalize Phase 4)</span></label>
+  <label class="item"><input type="checkbox" data-k="p6-2"><span>Self-query retrieval</span></label>
+  <label class="item"><input type="checkbox" data-k="p6-3"><span>Multi-hop / cross-document</span></label>
+  <label class="item"><input type="checkbox" data-k="p6-4"><span>Table extraction (fix the pypdf pain)</span></label>
+  <label class="item"><input type="checkbox" data-k="p6-5"><span>Graph RAG (last, biggest lift)</span></label>
+</section>
+
+<section>
+  <h2>Phase 7 — Ship</h2>
+  <label class="item"><input type="checkbox" data-k="p7-1"><span>git init + first proper commit + push to GitHub</span></label>
+  <label class="item"><input type="checkbox" data-k="p7-2"><span>Streamlit UI — one evening, hard cap</span></label>
+  <label class="item"><input type="checkbox" data-k="p7-3"><span>README: architecture + decisions (pull from decisions log)</span></label>
+  <label class="item"><input type="checkbox" data-k="p7-4"><span>Medium post</span></label>
+  <label class="item"><input type="checkbox" data-k="p7-5"><span>Update CV portfolio section (now it's real)</span></label>
+</section>
+
+<section>
+  <h2>Session log</h2>
+  <textarea id="log" placeholder="date · what got done · what broke"></textarea>
+  <div class="saved" id="savedmsg"></div>
+</section>
+
+<script>
+(function() {
+  var KEY = 'ncert-rag-todo';
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { state = {}; }
+
+  var boxes = document.querySelectorAll('input[type="checkbox"]');
+  var bar = document.getElementById('bar');
+  var pct = document.getElementById('pct');
+  var log = document.getElementById('log');
+  var savedmsg = document.getElementById('savedmsg');
+
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  function refresh() {
+    var done = 0;
+    boxes.forEach(function(b) {
+      var on = !!state[b.dataset.k];
+      b.checked = on;
+      b.closest('label').classList.toggle('done', on);
+      if (on) done++;
+    });
+    var total = boxes.length;
+    bar.style.width = (total ? (done / total * 100) : 0) + '%';
+    pct.textContent = done + ' / ' + total;
+  }
+
+  boxes.forEach(function(b) {
+    b.addEventListener('change', function() {
+      state[b.dataset.k] = b.checked;
+      save();
+      refresh();
+    });
+  });
+
+  if (state.__log) log.value = state.__log;
+  var t;
+  log.addEventListener('input', function() {
+    state.__log = log.value;
+    clearTimeout(t);
+    t = setTimeout(function() {
+      save();
+      savedmsg.textContent = 'saved ' + new Date().toLocaleTimeString();
+    }, 400);
+  });
+
+  refresh();
+})();
+</script>
+
+</body>
+</html>

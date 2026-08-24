@@ -1,0 +1,27 @@
+CHUNK OVERLAP
+Repeating N tokens between consecutive chunks. Solves the boundary problem: an idea
+split across a chunk boundary embeds weakly in BOTH chunks, so a query about it
+retrieves neither. Overlap guarantees boundary content lives whole in at least one
+chunk. Cost: duplicated storage + risk of retrieving near-duplicate chunks, so keep
+it 10–20%. Key insight: overlap is insurance against ARBITRARY boundaries — with
+structure-aware chunking (section headings), boundaries are meaningful and overlap
+is only needed inside sub-split sections, not between sections.
+
+EMBEDDING DIMENSIONALITY + NORMALIZATION
+An embedding is a point in high-dim space (MiniLM: 384-d) where geometry = semantics:
+similar meaning → nearby points. Dimensions are learned, entangled meaning-features,
+not interpretable columns. L2 normalization scales every vector to length 1 (unit
+sphere): magnitude (text length artifact, noise) is discarded, direction (meaning)
+kept. On normalized vectors, dot product = cosine similarity exactly — this is why
+FAISS IndexFlatIP + normalized vectors gave cosine in the maintenance project.
+NOT the same as z-scoring (std=1), which is a stats operation, different thing.
+
+TOP-K + SCORE THRESHOLDS
+Top-k returns the k NEAREST chunks — a ranking, not a quality bar. Nearest ≠ near:
+vector search always returns something, even for out-of-corpus queries. k trades
+recall (small k may miss the right chunk) vs noise (large k dilutes LLM context).
+Raw score thresholds are brittle because scores measure surface similarity, not
+relevance: differently-phrased good answers score low, vocabulary-overlap bad
+answers score high, and the right cutoff drifts per query. Hence two-stage gate:
+threshold discards obvious junk cheaply, LLM relevance check makes the judgment
+call. Bouncer checks you have A ticket; LLM checks it's for TONIGHT'S show.

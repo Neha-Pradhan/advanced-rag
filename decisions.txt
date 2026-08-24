@@ -1,0 +1,133 @@
+D4 · Why RAG at all (NCERT is public + LLMs search)
+Options: bare LLM / LLM + web search / RAG
+Choice: RAG
+Why: need grounding in a specific edition, chapter/section attribution, enforceable
+grade≤N boundary, honest "not in corpus" state. Knowledge availability was never
+the problem; control and attribution are. NCERT is a stand-in for private corpora.
+
+D5 · Chunking: section-aware
+Options: fixed-size / paragraph / section-aware / semantic / agentic
+Choice: section-aware on NCERT "N.N Title" headings; oversized sections sub-split
+with overlap, heading prepended to every sub-chunk
+Why: corpus has explicit author-made structure — use it. Semantic/agentic chunking
+is for unstructured blobs. Small-to-big noted as Phase 6 experiment candidate.
+
+D6 · One Qdrant collection, grade in payload
+Options: collection-per-grade vs single collection + payload filter
+Choice: single collection
+Why: core query (grade ≤ N) spans grades — one filtered search vs multi-search +
+manual score merging. Payload filtering exists precisely for this.
+
+D7 · Embedding model: start MiniLM, swap = experiment
+Options: all-MiniLM-L6-v2 (256 tok) vs 512-token class (bge-small/e5-small)
+Choice: MiniLM baseline; chunker enforces token budget so truncation is impossible
+by construction. Model swap runs later as a RAGAS before/after experiment.
+Why: known ground, free, local; measure instead of arguing leaderboards.
+
+D8 · Figures: full extraction + UI display (promoted from stretch)
+Options: captions-only / extract images + vision descriptions + display / multimodal embeddings
+Choice: middle path — extract images at ingestion, store path + description in
+payload, Streamlit shows figure next to answer
+Why: education bot without diagrams is half a product; deterministic (no LLM memory).
+
+D9 · Hybrid search added to Phase 6 (not baseline)
+Options: dense-only baseline / hybrid from day one
+Choice: dense baseline, hybrid (BM25-family sparse + dense fusion, Qdrant-native)
+as measured technique
+Why: exact-term queries ("photosynthesis") reward keyword scoring; but adding it
+unmeasured would break the before/after story.
+
+P2 · FAISS is a library, not a database — no server/persistence/filtering; every
+"FAISS in prod" is FAISS + homemade DB around it. Pinecone = closed-source,
+managed-only. Qdrant/Weaviate = open-source, self-hostable.
+P3 · pypdf on tables (grade 8 ch2, Table 2.4):
+- prose above/around table extracts cleanly
+- table itself flattened cell-by-cell in visual order → 2D grid structure destroyed;
+  can't tell which header owns which cell, row labels (Prediction/Observation) orphaned
+- embedding this soup = a vector for nonsense
+- design implication: don't fix extraction wholesale — DETECT table regions, route
+  ONLY those to a structured extractor (camelot/pdfplumber) in Phase 6. Prose path
+  stays on cheap pypdf. Table extraction earns its place as a measured technique.
+
+D10 · Project goals (all live, ranked)
+Goals: (1) working tool Sera actually uses, (2) learn advanced RAG concepts well
+enough to perform in interviews, (3) clean Medium writeup — including before/after
+deltas as a neat block where a technique produces one.
+Framing: measurement SERVES the writeup + interview stories; it does NOT dictate
+build order. Simple pypdf extractor first (learning-order reason). Where a technique
+naturally yields a before/after number cheaply, capture it for Medium — but don't
+contort the build to manufacture metrics.
+
+D11 · Chunk record shape
+{
+  id: "grade8_ch2_sec2.1_chunk0",   # unique, human-readable
+  text: "...",                       # heading-prefixed (embedding sees topic) — SEE OPEN Q
+  grade: 8,
+  subject: "science",               # kept: new subjects = new metadata, not new project
+  chapter: 2,
+  chapter_title: "...",
+  section: "2.1",
+  section_title: "...",             # for citation/filtering
+  figures: ["Fig 2.2"],             # refs found in chunk text
+  figure_paths: [],                 # empty now; populated in figure-extraction phase
+  source_pdf: "hecu102.pdf",
+  page: 10,
+}
+Notes: subject field = expansion seam (add maths via subject:"maths", same pipeline).
+figure_paths nullable-now avoids re-ingest later.
+
+IDEA (future, math subject) · Handwritten input via iPad
+Sera solves on iPad w/ Apple Pencil → image of handwritten work → vision LLM
+(Gemini/Claude) transcribes to LaTeX/text → feeds the answer-scorer. Sidesteps
+math-PDF extraction pain entirely for INPUT. (Separate from ingesting math
+textbooks, which still has formula-extraction issues.) Doable: vision models read
+handwritten math reasonably now. Chapter for after science pipeline ships.
+
+advanced-rag/
+├── data/
+│   ├── raw/              # PDFs (immutable) ✓ have this
+│   ├── processed/        # extracted clean text per chapter
+│   └── figures/          # extracted images (figure phase)
+├── src/                  # the pipeline package (not "scripts")
+│   ├── extract.py        # PDF → clean text
+│   ├── chunk.py          # text → chunk records
+│   ├── embed.py          # chunks → vectors
+│   ├── ingest.py         # orchestrates extract→chunk→embed→load
+│   ├── retrieve.py       # query path: search + filter + gate
+│   └── config.py         # paths, model names, constants
+├── eval/                 # RAGAS sets + runs (Phase 5)
+├── app/                  # Streamlit UI (Phase 7)
+├── notebooks/            # throwaway exploration (sanity_check lives here)
+├── decisions.txt
+├── concepts.txt
+└── requirements.txt
+
+D12 · Layout: RAG pipeline structure, not agent-app structure
+Reused NOTHING from maintenance project's agents/api/orchestrator layout — that fits
+a running service; this is a data pipeline. Layout: src/ (pipeline modules:
+extract→chunk→embed→ingest→retrieve + config), data/{raw,processed,figures},
+eval/, app/, notebooks/ (throwaway pokes). config.py = single source of truth for
+paths (Path(__file__)-relative, cwd-independent) + model/token constants.
+Run modules as `python -m src.x` so package imports resolve.
+
+P4 · extract.py baseline works: footers stripped (Chapter N.indd / Reprint rules),
+soft line-breaks joined. Residue: em-dash lines keep a newline (dash breaks the
+lowercase-lowercase rule) — harmless. Structural markers (chapter #, titles,
+Activity N.N, section headers) all extract cleanly → section-aware chunking viable.
+
+P5 · extract.py process_all() ran clean on all 25 chapters (grade7 ×12, grade8 ×13).
+Output data/processed/gradeN_chNN.txt, 9k–40k chars each. ch01 both grades short
+(intro chapters, less prose) — expected, not a failure. No zero-char files.
+Filename decoder: first letter h→8/g→7, last 2 digits = chapter. Prelims skipped.
+
+D13 · Chunking rule (baseline)
+Section-aware on NCERT "N.N Title" headings = base unit. Sections within 256-token
+budget → 1 chunk. Oversized sections → sub-split on SENTENCE BOUNDARIES (never
+mid-sentence) with small token overlap; heading prepended to every sub-chunk.
+Token budget measured with MiniLM's own tokenizer (tokens, not words/chars);
+real text budget = 256 − heading tokens − safety margin.
+Why sentence-boundary over hard-cut: mid-sentence cuts smear the chunk embedding
+(harder to retrieve the right chunk) and can fracture a fact across chunks. Effect
+is a quality nudge not correctness-critical, but cheap to do right at this scale.
+Rejected: LLM-summarize-long-chunks (throws away detail RAG needs) — parked as
+small-to-big / parent-doc candidate for Phase 6.
