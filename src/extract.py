@@ -5,10 +5,16 @@ from src.config import RAW, PROCESSED
 
 
 def clean_page(text: str) -> str:
-    # Drop footer junk: "Chapter N.indd ... PM" and "Reprint YYYY-YY"
+    # Footer/header junk
     text = re.sub(r"Chapter \d+\.indd.*", "", text)
     text = re.sub(r"Reprint \d{4}-\d{2}", "", text)
-    # Fix soft line-breaks: newline between lowercase text = joined
+    text = re.sub(r"Curiosity\s*—\s*Textbook of Science for Grade \d+", "", text)
+    text = re.sub(r"Chapter \d+\s*—\s*[A-Z][^\n]*", "", text)  # running chapter-title header
+    # Worksheet fill-in dots (3+ in a row)
+    text = re.sub(r"\.{3,}", "", text)
+    # Bare page-number lines
+    text = re.sub(r"^\s*\d{1,3}\s*$", "", text, flags=re.MULTILINE)
+    # Fix soft line-breaks
     text = re.sub(r"(?<=[a-z,])\n(?=[a-z])", " ", text)
     return text
 
