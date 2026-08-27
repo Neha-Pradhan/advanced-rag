@@ -25,3 +25,19 @@ relevance: differently-phrased good answers score low, vocabulary-overlap bad
 answers score high, and the right cutoff drifts per query. Hence two-stage gate:
 threshold discards obvious junk cheaply, LLM relevance check makes the judgment
 call. Bouncer checks you have A ticket; LLM checks it's for TONIGHT'S show.
+
+CHUNKING FAMILIES (placement)
+Recursive character splitting: generic cascade through separators (\n\n → \n → ". "
+→ " " → chars) until pieces fit size limit. Document-agnostic, LangChain default.
+Right choice when documents lack reliable structure.
+Structure-aware (ours): use the document's OWN boundaries (NCERT "N.N" section
+headings) as primary cuts — author-defined units of meaning. Sub-split oversized
+sections on sentence boundaries to fit token budget.
+Decision rule: does the corpus have exploitable structure? Yes → structure-aware.
+No → recursive.
+
+HEADING IN TEXT AND METADATA (for Medium)
+Section heading is prepended to embedded text (so the vector captures the chunk's
+topic — query "what is a cell" matches the heading, not just body) AND stored as
+metadata section_title (for citation + filtering). Looks redundant; isn't — one
+copy is embedded, one is queried structurally. Same pattern as figure refs.

@@ -131,3 +131,52 @@ Why sentence-boundary over hard-cut: mid-sentence cuts smear the chunk embedding
 is a quality nudge not correctness-critical, but cheap to do right at this scale.
 Rejected: LLM-summarize-long-chunks (throws away detail RAG needs) — parked as
 small-to-big / parent-doc candidate for Phase 6.
+
+D14 · Two transports over one retrieval core
+Core: src/retrieve.py stays a plain Python module (search + grade filter + gate).
+Transport 1 — Streamlit app for Sera: keeps control of the answer layer
+(grade-appropriate phrasing, consent fallback, figure display) rather than handing
+generation to a general-purpose assistant. Also avoids putting an open-ended chatbot
+in front of a 12-year-old during study time.
+Transport 2 — MCP server: learning chapter only (MCP is a flagged gap; Crisil JD
+lists it). Tested with MCP Inspector (free, official) or a VS Code MCP client —
+no Claude Desktop / paid plan needed. Server is client-agnostic by protocol design.
+Why both: wrapper changes, core doesn't. Story: "retrieval core, two transports."
+
+D15 · Chunking: library splitter + post-process, not hand-rolled
+Use LangChain's RecursiveCharacterTextSplitter (token-length fn = MiniLM tokenizer)
+for sub-splitting oversized sections, not hand-rolled sentence logic. Re-inject
+section heading into each sub-chunk as post-processing (splitters don't know our
+heading rule). Why: mirrors production — nobody hand-rolls chunking at work.
+Supersedes original "no frameworks at first" for THIS component. Learning preserved
+via understanding what the splitter does, not rebuilding it.
+
+D16 · Chunk record final (D11 realized)
+Each chunk: id (grade8_ch02_sec2.1_0), text (heading-prefixed, embedded),
+grade, subject, chapter, section, section_title, figures (auto-detected refs),
+figure_paths (empty until figure phase), source_pdf. Only `text` is embedded;
+everything else = Qdrant payload (filter + citation).
+
+=== NOTES / PAIN LOG ===
+
+P6 · Chunking known limitation (accepted, not fixed)
+Last section of each chapter absorbs end-of-chapter back-matter (exercises,
+"enhance our learning" questions) under its N.N label, because split_sections runs
+the final heading to EOF. No reliable cross-chapter marker ("Let us" is used
+throughout as activity titles, wording varies per chapter). Accepted: back-matter
+still embeds usefully, just imperfectly labeled. Revisit only if retrieval suffers.
+
+P7 · clean_page tightened after seeing real chunks: added rules for running header
+"Curiosity — Textbook of Science for Grade N", running "Chapter N — Title" header,
+worksheet dot-runs (\.{3,}), bare page-number lines. Fixed once in extract.py →
+cascades to all 25 chapters. Lesson: inspect real CHUNKS, not just sections.
+
+P8 · Chunking bugs found by inspecting real output (all invisible in code):
+- grade8_ch01 = narrative foreword, zero N.N headings → produced 0 chunks (silent
+  data loss). Fix: no-headings case → whole chapter as one intro section.
+- grade7 chapters repeat the SECTION heading as a per-page running header →
+  find_headings matched each heading 15-20× → scrambled slice positions →
+  over-fragmentation (ch11: 66 false sections, 102 chunks). Fix: dedupe on section
+  number, keep first occurrence (NCERT numbering strictly increasing → safe).
+- figure refs duplicated via non-breaking space (\xa0) → normalize before matching.
+Result: 1074 chunks, 25 chapters, section counts 1-10, chunk counts 35-59.
