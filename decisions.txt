@@ -157,6 +157,13 @@ grade, subject, chapter, section, section_title, figures (auto-detected refs),
 figure_paths (empty until figure phase), source_pdf. Only `text` is embedded;
 everything else = Qdrant payload (filter + citation).
 
+D17 · Qdrant Cloud cluster live
+Free tier: 4GiB disk / 1GiB RAM (ample for 1074 × 384-dim vectors). AWS Ireland
+(region irrelevant at this scale). URL + API key in .env (gitignored). Connection
+tested via qdrant_client.get_collections() → collections=[]. 
+Collection to create: 384 dims (MiniLM), cosine distance (MiniLM normalizes →
+cosine, same reasoning as FAISS IndexFlatIP in maintenance project).
+
 === NOTES / PAIN LOG ===
 
 P6 · Chunking known limitation (accepted, not fixed)
@@ -180,3 +187,13 @@ P8 · Chunking bugs found by inspecting real output (all invisible in code):
   number, keep first occurrence (NCERT numbering strictly increasing → safe).
 - figure refs duplicated via non-breaking space (\xa0) → normalize before matching.
 Result: 1074 chunks, 25 chapters, section counts 1-10, chunk counts 35-59.
+
+D18 · Qdrant collection loaded
+Collection "ncert_science": 384-dim, cosine, 1074 points. create_collection uses
+collection_exists guard (not deprecated recreate_collection) — safe re-runs, won't
+nuke data. Embedding: model.encode(all texts, normalize_embeddings=True) in one
+batch (not 1074 individual calls); normalize=True matches cosine metric. Upsert as
+PointStruct(id=index, vector, payload=full chunk dict). Verified count=1074 from
+Qdrant side, not just script claim.
+Known harmless warnings: HF_TOKEN (unauthenticated downloads, rate-limited only),
+"Unable to close http connection" (fires after successful upsert).

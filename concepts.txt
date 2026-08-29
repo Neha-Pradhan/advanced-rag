@@ -41,3 +41,16 @@ Section heading is prepended to embedded text (so the vector captures the chunk'
 topic — query "what is a cell" matches the heading, not just body) AND stored as
 metadata section_title (for citation + filtering). Looks redundant; isn't — one
 copy is embedded, one is queried structurally. Same pattern as figure refs.
+
+HOW A SENTENCE BECOMES ONE 384-VECTOR
+NOT a sum of word vectors (that's the old Word2Vec/GloVe way). MiniLM is a
+transformer: reads the whole sentence at once, and attention (Q/K/V) makes each
+token's representation depend on all surrounding tokens — so "bank" in "river bank"
+vs "bank account" get different vectors. A sum can't do that.
+Pipeline: sentence → tokenize → transformer (attention) → one 384-vec PER token
+(context-aware) → mean-pool (average the token vectors) → ONE 384-vec for sentence.
+There IS an average at the end, but it's an average of CONTEXT-AWARE token vectors,
+not raw word vectors — context happens before pooling. That's why transformers beat
+averaging.
+384 = fixed model capacity, NOT related to text length. One word or 200 words → 384
+numbers either way. Bigger models use 768/1024 (more nuance, more compute).
