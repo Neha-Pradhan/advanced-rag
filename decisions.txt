@@ -242,6 +242,16 @@ LLM calls wrapped behind a function → provider-swappable; "built model-agnosti
 itself a design note. Optionally could use Anthropic $5 trial for dev/eval quality
 later — deferred.
 
+D22 · Answer generation + full query flow (Phase 4 complete)
+answer_query(query, grade) = the online pipeline core: search → gate → answer OR
+fallback. Returns a DICT (status: answered/not_found + fields), not a string —
+because both transports (Streamlit, MCP) consume it and must render answer vs
+fallback differently. Transport-agnostic core (D14 realized).
+generate_answer constraints: (1) answer ONLY from retrieved chunks (grounding, no
+outside facts), (2) at student's grade level (D1), (3) cite Ch/§, (4) point to
+figures via `figures` metadata (D8 payoff). Verified: cell query → grounded, cited,
+figure-pointing answer; black holes → consent fallback (D2), no hallucination.
+
 P10 · Gate two-stage: which stage earns its keep (open question)
 Measured: cricket 0.25 (reject S1), black holes 0.32 (reject S1), cell 0.55 (pass),
 moon phases 0.770 (pass — highest score seen, near-exact topic match). Score bands
@@ -251,3 +261,27 @@ yet caught anything stage 1 missed. Stage 2's real job = high-score-but-irreleva
 (vocabulary overlap inflates score, e.g. a named entity present but question
 unanswerable). Not yet demonstrated on a real query. Revisit: find a query that
 passes S1 but should fail, to prove S2 earns its place (or drop it if it never does).
+
+P11 · Resilient batch API pattern (learned via 503)
+Gemini free tier throws transient 503s. Robust batch-of-LLM-calls needs THREE things
+together: (1) retry with exponential backoff (1,2,4,8s, bounded → fails fast, never
+hangs), (2) resume — skip already-done items on re-run, (3) incremental save — write
+after EACH item, not just at end. Resume + end-only-save = half a fix (nothing to
+resume from after a mid-run crash). Incremental save + resume = crash-proof.
+
+D23 · Model swap: 3.6-flash → 2.5-flash-lite (rate limits)
+gemini-3.6-flash is a PREVIEW model with a stingy free cap (~20 req/day) — hit it
+during eval-reference generation. Swapped to gemini-2.5-flash-lite: stable (non-
+preview), flash-lite class = highest free daily quota (~1000-1500 RPD), fast + cheap,
+ample for answer-gen + RAGAS judging + Sera's daily use. Lesson: newest ≠ best on
+free tier; preview models have tighter limits than mature ones. Centralized
+GEMINI_MODEL in config → one-line swap.
+
+D24 · RAGAS baseline (Phase 5 complete)
+8 in-corpus questions, Gemini judge (3.5-flash-lite), MiniLM embeddings.
+faithfulness 0.94 · answer_relevancy 0.91 · context_precision 0.86 · context_recall 0.69
+Read: generation is strong (grounding constraint working, low hallucination).
+RETRIEVAL COMPLETENESS is the bottleneck — recall 0.69 = ~31% of needed info missed.
+Phase 6 priority = recall-lifting techniques (multi-hop, higher top-k, better chunking).
+Baseline to beat. Capture/score decoupled (captured.json) + retry+resume for flaky
+free-tier 503s.

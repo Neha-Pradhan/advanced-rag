@@ -55,12 +55,11 @@ averaging.
 384 = fixed model capacity, NOT related to text length. One word or 200 words → 384
 numbers either way. Bigger models use 768/1024 (more nuance, more compute).
 
-D22 · Answer generation + full query flow (Phase 4 complete)
-answer_query(query, grade) = the online pipeline core: search → gate → answer OR
-fallback. Returns a DICT (status: answered/not_found + fields), not a string —
-because both transports (Streamlit, MCP) consume it and must render answer vs
-fallback differently. Transport-agnostic core (D14 realized).
-generate_answer constraints: (1) answer ONLY from retrieved chunks (grounding, no
-outside facts), (2) at student's grade level (D1), (3) cite Ch/§, (4) point to
-figures via `figures` metadata (D8 payoff). Verified: cell query → grounded, cited,
-figure-pointing answer; black holes → consent fallback (D2), no hallucination.
+RAGAS ground-truth requirement (precise):
+- faithfulness: question + chunks + generated answer. NO ground-truth.
+- answer relevancy: question + generated answer. NO ground-truth.
+- context precision: question + chunks (+ optional ground-truth; reference-free
+  variant exists). Mostly NO ground-truth.
+- context recall: question + chunks + GROUND-TRUTH answer. REQUIRES eval set.
+So a lite pass (faithfulness + relevancy + ref-free precision) runs on questions
+alone; full RAGAS incl. recall needs (question, ground-truth) pairs.

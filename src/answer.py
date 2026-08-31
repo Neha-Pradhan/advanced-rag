@@ -4,6 +4,8 @@ from google import genai
 from src.config import GEMINI_MODEL
 from src.retrieve import search
 from src.gate import gate
+import time
+from google.genai.errors import ServerError
 
 load_dotenv()
 _llm = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
@@ -24,8 +26,15 @@ def generate_answer(query: str, hits, user_grade: int) -> str:
         f"Textbook passages:\n{context}\n\n"
         "Answer:"
     )
-    resp = _llm.models.generate_content(model=GEMINI_MODEL, contents=prompt)
-    return resp.text.strip()
+    for attempt in range(5):
+        try:
+            resp = _llm.models.generate_content(model=GEMINI_MODEL, contents=prompt)
+            return resp.text.strip()
+        except ServerError:
+            wait = 2 ** attempt
+            print(f"  503, retry in {wait}s...")
+            time.sleep(wait)
+    raise RuntimeError("Gemini unavailable after retries")
 
 def answer_query(query: str, user_grade: int) -> dict:
     hits = search(query, user_grade=user_grade)

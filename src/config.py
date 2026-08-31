@@ -12,7 +12,7 @@ FIGURES = DATA / "figures"
 EMBED_MODEL = "all-MiniLM-L6-v2"
 EMBED_MAX_TOKENS = 256
 
-GEMINI_MODEL = "gemini-3.6-flash"
+GEMINI_MODEL = "gemini-3.5-flash-lite"
 
 from sentence_transformers import SentenceTransformer
 

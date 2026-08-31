@@ -1,0 +1,62 @@
+[
+  {
+    "q": "What is a cell made of?",
+    "grade": 8,
+    "expect": "answered",
+    "reference": "Hi there! That is a great question. \n\nAccording to your textbook, a cell isn't just a simple bag of liquid\u2014it is a complex structure made up of many different parts (or components) that help it perform various functions! \n\nHere are the specific parts that make up a cell:\n\n* **Cell Membrane:** An inner covering around the cell.\n* **Cell Wall:** An extra outer covering found in plant, fungal, and bacterial cells (around the cell membrane) that provides rigidity, strength, and a firm structure.\n* **Nucleus:** This regulates growth and all the activities happening inside the cell. *(Note: Bacteria do not have a well-defined nucleus. Make sure to check out **Fig. 2.13** to see a bacterial cell with a nucleoid region instead!)*\n* **Cytoplasm:** One of the main parts that makes up the inside of the cell.\n* **Plastids:** Tiny rod-shaped structures found in all parts of a plant cell. Some plastids (like chloroplasts) contain chlorophyll to help with photosynthesis, while others help store substances.\n* **Vacuoles:** An empty-looking space used to store important substances, get rid of waste, and maintain the cell's shape. Plant cells have a large vacuole, while animal cells usually have small ones or none at all. *(Be sure to look at **Fig. 2.5** to see this!)*\n\nSo, a cell is made of these different special parts working together! Let me know if you have any other questions."
+  },
+  {
+    "q": "What is the function of the nucleus in a cell?",
+    "grade": 8,
+    "expect": "answered",
+    "reference": "Hi there! I'd be happy to help you with that!\n\nAccording to your textbook, the nucleus has two main functions:\n\n1. **It regulates all activities** that happen inside the cell.\n2. **It regulates growth.**\n\n*(Also, be sure to check out **Fig. 2.5** in your textbook as mentioned in the reading!)* \n\nLet me know if you have any other questions about your textbook reading!"
+  },
+  {
+    "q": "How does yeast help in making bread?",
+    "grade": 8,
+    "expect": "answered",
+    "reference": "Hi there! I would be happy to explain how yeast helps in making bread! \n\nYeast is a tiny microorganism that belongs to a group called **fungi**. Here is how it works when making bread:\n\n1. **It respires and breaks down food:** When yeast is mixed into the dough (with sugar and warm water), it respires and breaks down the food to release energy for its growth.\n2. **It releases carbon dioxide:** During this process, yeast releases **carbon dioxide gas**. \n3. **It makes the dough soft and fluffy:** The carbon dioxide forms bubbles inside the dough. These gas bubbles cause the dough to rise, making it soft and fluffy! You can take a look at **Fig. 2.11** to see how the volume of the flour dough changes after yeast, sugar, and warm water are added.\n4. **It adds a special smell:** Yeast also produces a small amount of alcohol while breaking down food, which gives the dough a slightly different, special smell.\n\nBecause of this special property, yeast is added while baking to make sure our bread and cakes turn out soft, fluffy, and light!"
+  },
+  {
+    "q": "What are microorganisms?",
+    "grade": 8,
+    "expect": "answered",
+    "reference": "Hello! I would be happy to explain this to you!\n\n**Microorganisms** (also called **microbes**) are tiny living beings. The word \"micro\" means very small, and \"organisms\" means living beings. \n\nHere are the key things to know about them based on your textbook:\n\n* **They are microscopic:** Microorganisms are so small that you cannot see them with your naked eye. To observe them, you need to use a device called a **microscope**, which magnifies their size (by 100 to 400 times) to make them visible to us. Be sure to check out **Fig. 2.8** in your textbook to see how a slide is observed under a microscope!\n* **How they are made:** \n  * Some microorganisms are **unicellular**, meaning they are made of just one cell (such as **bacteria** and ***Amoeba***). \n  * Others are **multicellular**, meaning they have many cells (such as some **fungi** and **algae**).\n  * Your book also mentions **viruses**, which are microscopic and acellular (not made of cells). Viruses multiply when they enter a living cell and can cause diseases.\n* **Where they live:** They show great diversity and are found everywhere! You can find them in the air, water, soil, inside food items, and even inside our bodies (especially in our gut). They can live at moderate temperatures, but some can even survive in extreme conditions like hot water springs and snow-cold zones. \n\n**Fun fact from your book:** Have you ever seen food like a tomato, lemon, or orange rot after being left outside? If you look at **Fig. 2.9**, you can see a powdery or cotton-like growth on rotting food. This growth happens because the food was infected by microbes!"
+  },
+  {
+    "q": "How do we see the phases of the moon?",
+    "grade": 8,
+    "expect": "answered",
+    "reference": "Hello there! I'd be happy to explain how we see the phases of the Moon! \n\nThe changing shapes of the bright (illuminated) portion of the Moon that we see from Earth from day to day are called the **phases of the Moon**. Here is how it works:\n\n1. **The Sun Lights Up the Moon:** As the Moon revolves once around the Earth (which takes about one month), the side of the Moon that faces the Sun is illuminated by sunlight. \n2. **Our View from Earth:** From Earth, we can only look at the side of the Moon that is facing us. \n3. **Changing Positions:** As the Moon moves to different positions in its orbit around the Earth, the fraction of the illuminated portion that we can see keeps changing. This change in what we see causes the phases!\n\nHere is what we see as the Moon moves:\n* **New Moon:** The illuminated portion cannot be seen at all. On this day, the Moon appears closest to the Sun.\n* **Crescent Phase:** We can see less than half of the bright portion.\n* **Half Circle:** We see half of the bright portion.\n* **Gibbous Phase:** We can see more than half of the bright portion.\n* **Full Moon:** We see the entire illuminated portion! On this day, the Moon appears farthest from the Sun.\n\nThe Moon repeats this cycle every month in two main stages:\n* **Waxing Phase (Shukla Paksha):** The bright part we see is growing larger. \n* **Waning Phase (Krishna Paksha):** The bright part we see is shrinking or decreasing.\n\n**Make sure to look at the figures in your textbook!** \n* Check **Fig. 11.5a** to see the Moon moving to different positions around the Earth.\n* Look at **Fig. 11.5b** to see what each phase looks like from Earth.\n* You can also look at **Fig. 11.2** to see how the cycle moves between the waning and waxing periods!"
+  },
+  {
+    "q": "What is photosynthesis?",
+    "grade": 7,
+    "expect": "answered",
+    "reference": "Hello there! I'm happy to help you understand this! \n\n**Photosynthesis** is the process by which plants prepare (or make) their own food. \n\nHere is how it works based on your textbook:\n\n* **What plants need:** To carry out photosynthesis, plants take in **carbon dioxide** from the air and **water** (along with minerals), and use **sunlight** and **chlorophyll** (the green pigment in plants).\n* **What plants produce:** During this process, plants produce food in the form of **glucose** (a simple carbohydrate) and release **oxygen** into the air. \n* **What happens to the food:** The glucose gives the plant an instant source of energy, and it later gets converted into starch to be stored for later use.\n* **Where it happens:** Leaves are the primary site for photosynthesis (they are like the plant's \"food factories\"), but any green part of the plant that has chlorophyll can perform it!\n\nYour textbook gives a simple word equation for it:\n\n> **Carbon dioxide + Water $\\xrightarrow{\\text{Sunlight / Chlorophyll}}$ Glucose + Oxygen**\n\nBe sure to take a look at **Fig. 10.5** in your textbook to see a diagram showing how photosynthesis works!"
+  },
+  {
+    "q": "How does light travel?",
+    "grade": 7,
+    "expect": "answered",
+    "reference": "Hello! I'd be happy to help you with your question. \n\nBased on our textbook, light travels in a **straight line**!"
+  },
+  {
+    "q": "What is an eclipse?",
+    "grade": 7,
+    "expect": "answered",
+    "reference": "Hello there! Let's talk about eclipses. \n\nBased on our textbook, an eclipse involves something blocking the Sun, which is the main source of heat and light on Earth, even for a brief period of time. \n\nFor a solar eclipse specifically, the Sun, the Moon, and the Earth are arranged in a certain way, and the shadow of the Moon falls on a small area on the surface of the Earth. If you are in that area, it is in total darkness, and no part of the Sun can be seen from there, which means you witness a total solar eclipse! \n\n*(If you want to see what this arrangement looks like, make sure to look at Fig. 12.13 and Fig. 12.14a in your textbook!)*"
+  },
+  {
+    "q": "Who won the cricket world cup?",
+    "grade": 8,
+    "expect": "not_found",
+    "reference": null
+  },
+  {
+    "q": "How do black holes form?",
+    "grade": 8,
+    "expect": "not_found",
+    "reference": null
+  }
+]
