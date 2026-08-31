@@ -197,3 +197,57 @@ PointStruct(id=index, vector, payload=full chunk dict). Verified count=1074 from
 Qdrant side, not just script claim.
 Known harmless warnings: HF_TOKEN (unauthenticated downloads, rate-limited only),
 "Unable to close http connection" (fires after successful upsert).
+
+P9 · Retrieval score bands (MiniLM, real measurement)
+In-corpus query "what is a cell made of": top hit 0.549, all top-5 ≥ 0.49, all from
+the correct section (2.1). Out-of-corpus "who won the cricket world cup": top hit
+0.247, sliding to 0.18, hits are unrelated science chunks (nearest ≠ relevant).
+Key: MiniLM relevant hits live in 0.4-0.6, NOT 0.8+. A naive 0.7 threshold would
+reject every good hit. Threshold must be calibrated to THIS model. Clean gap here
+(~0.5 vs ~0.25) but science-adjacent-but-absent queries would score mid-range and
+fool a pure threshold → why the 2nd-stage LLM relevance check exists.
+
+GATE vs RAGAS (don't conflate)
+LLM relevance gate = RUNTIME component. Per user query, post-retrieval: cheap LLM
+asks "do these chunks answer this question?" → "no" triggers consent fallback.
+Ships to production, runs on every query, invisible to user.
+RAGAS = OFFLINE eval framework. Run during development over a test Q&A set to MEASURE
+retrieval/answer quality (faithfulness, answer relevancy, context precision). Grades
+the system; not part of it. Run per-experiment (e.g. before/after swapping a model).
+Gate = runtime behavior. RAGAS = measuring tape. No overlap.
+
+D19 · Shared model singleton (refactor)
+MiniLM was loading 3× (chunk.py, embed.py, retrieve.py each instantiated it at
+import; chaining imports triggered all three per query). Fixed: lazy singleton
+get_model() in config.py — loads once on first call, caches, returns same instance
+after. All three files call get_model() instead of SentenceTransformer(...). Also
+fixes chunk.py loading full model when it only needs the tokenizer. Matters most for
+Streamlit — model must not reload per query.
+
+D20 · Grade filter working (payload index required)
+Filtering on a payload field requires a payload INDEX — Qdrant 400s on unindexed
+filter fields by design (refuses silent full scan). Created INTEGER index on `grade`
+via create_payload_index (one-time, no re-embedding). Rule: index fields you FILTER
+on (grade, later subject), not fields you only read for citation.
+Verified: grade-7 search returns only g7 hits at low scores (0.35), grade-8 returns
+g8 cell hits at 0.55 — D1 (grade ≤ user) working; low grade-7 scores are exactly the
+consent-fallback signal (D2).
+
+D21 · LLM provider: Gemini (free tier), model-agnostic wrapper
+Gate + answer generation run on Gemini (free ongoing tier, no card, prior experience
+from maintenance-orchestration). Chose over Anthropic API: Anthropic has no permanent
+free tier (one-time ~$5 trial only, then pay-as-you-go real money, separate from
+Claude.ai Pro plan). Hard constraint = stay free end-to-end incl. Sera's daily use.
+LLM calls wrapped behind a function → provider-swappable; "built model-agnostic" is
+itself a design note. Optionally could use Anthropic $5 trial for dev/eval quality
+later — deferred.
+
+P10 · Gate two-stage: which stage earns its keep (open question)
+Measured: cricket 0.25 (reject S1), black holes 0.32 (reject S1), cell 0.55 (pass),
+moon phases 0.770 (pass — highest score seen, near-exact topic match). Score bands
+wider than first thought (0.25 → 0.77). In ALL test queries so far, stage-1 score
+floor alone decided correctly; stage-2 LLM check only ever confirmed a pass — hasn't
+yet caught anything stage 1 missed. Stage 2's real job = high-score-but-irrelevant
+(vocabulary overlap inflates score, e.g. a named entity present but question
+unanswerable). Not yet demonstrated on a real query. Revisit: find a query that
+passes S1 but should fail, to prove S2 earns its place (or drop it if it never does).

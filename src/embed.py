@@ -2,11 +2,10 @@ import os
 from dotenv import load_dotenv
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
-from sentence_transformers import SentenceTransformer
 from qdrant_client.models import PointStruct
 from src.chunk import build_all_chunks
-
-from src.config import EMBED_MODEL
+from src.config import EMBED_MODEL, get_model
+from qdrant_client.models import PayloadSchemaType
 
 load_dotenv()
 
@@ -28,15 +27,20 @@ def create_collection():
     )
     print(f"Collection '{COLLECTION}' created: 384-dim, cosine")
 
-model = SentenceTransformer(EMBED_MODEL)
-
-
+def create_indexes():
+    client.create_payload_index(
+        collection_name=COLLECTION,
+        field_name="grade",
+        field_schema=PayloadSchemaType.INTEGER,
+    )
+    print("Created payload index on 'grade'")
+    
 def embed_and_load():
     chunks = build_all_chunks()
     print(f"Embedding {len(chunks)} chunks...")
 
     texts = [c["text"] for c in chunks]
-    vectors = model.encode(texts, show_progress_bar=True, normalize_embeddings=True)
+    vectors = get_model().encode(texts, show_progress_bar=True, normalize_embeddings=True)
 
     points = [
         PointStruct(id=i, vector=vectors[i].tolist(), payload=chunks[i])

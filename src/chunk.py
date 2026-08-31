@@ -1,7 +1,6 @@
 import re
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from sentence_transformers import SentenceTransformer
-from src.config import PROCESSED, EMBED_MODEL, EMBED_MAX_TOKENS
+from src.config import PROCESSED, EMBED_MODEL, EMBED_MAX_TOKENS, get_model
 
 # NCERT section headings look like "2.1 What Is a Cell?" at line start.
 # Pattern: digits.digits, a space, then a Title-Case word.
@@ -9,14 +8,14 @@ from src.config import PROCESSED, EMBED_MODEL, EMBED_MAX_TOKENS
 HEADING_RE = re.compile(r"^(\d+\.\d+)\s+([A-Z].*)$", re.MULTILINE)
 
 # Load model once; we only need its tokenizer for length counting here.
-_model = SentenceTransformer(EMBED_MODEL)
+# _model = SentenceTransformer(EMBED_MODEL)
 
 SAFETY_MARGIN = 10   # small buffer for tokenizer edge cases
 CHUNK_OVERLAP = 30   # tokens carried between forced sub-splits
 
 def token_len(text: str) -> int:
     # Length in MiniLM tokens, not characters — this is what the 256 budget means.
-    return len(_model.tokenizer.encode(text, add_special_tokens=False))
+    return len(get_model().tokenizer.encode(text, add_special_tokens=False))
 
 def find_headings(text: str):
     seen = set()
