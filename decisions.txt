@@ -285,3 +285,4 @@ RETRIEVAL COMPLETENESS is the bottleneck — recall 0.69 = ~31% of needed info m
 Phase 6 priority = recall-lifting techniques (multi-hop, higher top-k, better chunking).
 Baseline to beat. Capture/score decoupled (captured.json) + retry+resume for flaky
 free-tier 503s.
+

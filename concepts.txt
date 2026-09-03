@@ -63,3 +63,14 @@ RAGAS ground-truth requirement (precise):
 - context recall: question + chunks + GROUND-TRUTH answer. REQUIRES eval set.
 So a lite pass (faithfulness + relevancy + ref-free precision) runs on questions
 alone; full RAGAS incl. recall needs (question, ground-truth) pairs.
+
+MLFLOW (experiment tracking)
+A structured lab notebook for ML experiments. Doesn't run experiments — REMEMBERS
+them. Wraps each run and logs params (your knobs: top_k, model) + metrics (measured
+outputs: faithfulness, recall) into a local store.
+Vocab: Experiment = named bucket; Run = one execution/config; params = inputs,
+metrics = outputs. `mlflow ui` → local web table, one row per run, sortable — see
+how a metric moves across configs at a glance.
+Why: without it, experiment scores scroll past the terminal and you lose track of
+which config gave which number. With it, every before/after is filed and comparable.
+Recorder, not runner — your code does the work, MLflow files the result.
