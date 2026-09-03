@@ -50,7 +50,7 @@ P3 · pypdf on tables (grade 8 ch2, Table 2.4):
   stays on cheap pypdf. Table extraction earns its place as a measured technique.
 
 D10 · Project goals (all live, ranked)
-Goals: (1) working tool Sera actually uses, (2) learn advanced RAG concepts well
+Goals: (1) working tool someone actually uses, (2) learn advanced RAG concepts well
 enough to perform in interviews, (3) clean Medium writeup — including before/after
 deltas as a neat block where a technique produces one.
 Framing: measurement SERVES the writeup + interview stories; it does NOT dictate
@@ -77,7 +77,7 @@ Notes: subject field = expansion seam (add maths via subject:"maths", same pipel
 figure_paths nullable-now avoids re-ingest later.
 
 IDEA (future, math subject) · Handwritten input via iPad
-Sera solves on iPad w/ Apple Pencil → image of handwritten work → vision LLM
+Student solves on iPad w/ Apple Pencil → image of handwritten work → vision LLM
 (Gemini/Claude) transcribes to LaTeX/text → feeds the answer-scorer. Sidesteps
 math-PDF extraction pain entirely for INPUT. (Separate from ingesting math
 textbooks, which still has formula-extraction issues.) Doable: vision models read
@@ -134,7 +134,7 @@ small-to-big / parent-doc candidate for Phase 6.
 
 D14 · Two transports over one retrieval core
 Core: src/retrieve.py stays a plain Python module (search + grade filter + gate).
-Transport 1 — Streamlit app for Sera: keeps control of the answer layer
+Transport 1 — Streamlit app for the student: keeps control of the answer layer
 (grade-appropriate phrasing, consent fallback, figure display) rather than handing
 generation to a general-purpose assistant. Also avoids putting an open-ended chatbot
 in front of a 12-year-old during study time.
@@ -237,7 +237,7 @@ D21 · LLM provider: Gemini (free tier), model-agnostic wrapper
 Gate + answer generation run on Gemini (free ongoing tier, no card, prior experience
 from maintenance-orchestration). Chose over Anthropic API: Anthropic has no permanent
 free tier (one-time ~$5 trial only, then pay-as-you-go real money, separate from
-Claude.ai Pro plan). Hard constraint = stay free end-to-end incl. Sera's daily use.
+Claude.ai Pro plan). Hard constraint = stay free end-to-end incl. Student's daily use.
 LLM calls wrapped behind a function → provider-swappable; "built model-agnostic" is
 itself a design note. Optionally could use Anthropic $5 trial for dev/eval quality
 later — deferred.
@@ -273,7 +273,7 @@ D23 · Model swap: 3.6-flash → 2.5-flash-lite (rate limits)
 gemini-3.6-flash is a PREVIEW model with a stingy free cap (~20 req/day) — hit it
 during eval-reference generation. Swapped to gemini-2.5-flash-lite: stable (non-
 preview), flash-lite class = highest free daily quota (~1000-1500 RPD), fast + cheap,
-ample for answer-gen + RAGAS judging + Sera's daily use. Lesson: newest ≠ best on
+ample for answer-gen + RAGAS judging + student's daily use. Lesson: newest ≠ best on
 free tier; preview models have tighter limits than mature ones. Centralized
 GEMINI_MODEL in config → one-line swap.
 
